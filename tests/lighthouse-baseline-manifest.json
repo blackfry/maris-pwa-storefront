@@ -1,0 +1,54 @@
+[
+  {
+    "url": "http://localhost:3000/",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/mark/code/blackfry/AM_PWA_POC/.lighthouseci/_-2026_06_03_08_46_18.report.html",
+    "jsonPath": "/Users/mark/code/blackfry/AM_PWA_POC/.lighthouseci/_-2026_06_03_08_46_18.report.json",
+    "summary": {
+      "performance": 0.43,
+      "accessibility": 0.97,
+      "best-practices": 0.83,
+      "seo": 1,
+      "pwa": 0.6
+    }
+  },
+  {
+    "url": "http://localhost:3000/category/womens",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/mark/code/blackfry/AM_PWA_POC/.lighthouseci/_category_womens-2026_06_03_08_46_39.report.html",
+    "jsonPath": "/Users/mark/code/blackfry/AM_PWA_POC/.lighthouseci/_category_womens-2026_06_03_08_46_39.report.json",
+    "summary": {
+      "performance": 0.41,
+      "accessibility": 0.97,
+      "best-practices": 0.83,
+      "seo": 1,
+      "pwa": 0.6
+    }
+  },
+  {
+    "url": "http://localhost:3000/product/25493587M",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/mark/code/blackfry/AM_PWA_POC/.lighthouseci/_product_25493587M-2026_06_03_08_46_54.report.html",
+    "jsonPath": "/Users/mark/code/blackfry/AM_PWA_POC/.lighthouseci/_product_25493587M-2026_06_03_08_46_54.report.json",
+    "summary": {
+      "performance": 0.55,
+      "accessibility": 0.97,
+      "best-practices": 0.83,
+      "seo": 1,
+      "pwa": 0.6
+    }
+  },
+  {
+    "url": "http://localhost:3000/search?q=dress",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/mark/code/blackfry/AM_PWA_POC/.lighthouseci/_search-2026_06_03_08_47_11.report.html",
+    "jsonPath": "/Users/mark/code/blackfry/AM_PWA_POC/.lighthouseci/_search-2026_06_03_08_47_11.report.json",
+    "summary": {
+      "performance": 0.45,
+      "accessibility": 0.97,
+      "best-practices": 0.83,
+      "seo": 1,
+      "pwa": 0.6
+    }
+  }
+]
