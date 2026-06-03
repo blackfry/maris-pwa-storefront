@@ -6,12 +6,18 @@
  */
 import React from 'react'
 import PropTypes from 'prop-types'
+import {Helmet} from 'react-helmet'
 import {ChakraProvider} from '@salesforce/retail-react-app/app/components/shared/ui'
 
 // Removes focus for non-keyboard interactions for the whole application
 import 'focus-visible/dist/focus-visible'
 
-import theme from '@salesforce/retail-react-app/app/theme'
+// Import OUR brand theme by RELATIVE path. Under Template Extensibility the
+// overrides resolver only redirects base->override (never override->override),
+// so importing '@salesforce/retail-react-app/app/theme' from this overrides file
+// would resolve to the BASE theme. A relative import bypasses the resolver and
+// applies the Maris brand theme app-wide via <ChakraProvider theme={theme}>.
+import theme from '../../theme'
 import {MultiSiteProvider, StoreLocatorProvider} from '@salesforce/retail-react-app/app/contexts'
 import {
     resolveSiteFromUrl,
@@ -113,6 +119,16 @@ const AppConfig = ({children, locals = {}}) => {
                     : process.env.MRT_ENABLE_HTTPONLY_SESSION_COOKIES === 'true'
             }
         >
+            {/* Maris brand: load the Fraunces display serif used for headings.
+                font-display:swap avoids invisible text / layout shift during load. */}
+            <Helmet>
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+                <link
+                    rel="stylesheet"
+                    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap"
+                />
+            </Helmet>
             <MultiSiteProvider site={locals.site} locale={locals.locale} buildUrl={locals.buildUrl}>
                 <StoreLocatorProvider config={storeLocatorConfig}>
                     <ChakraProvider theme={theme}>{children}</ChakraProvider>
