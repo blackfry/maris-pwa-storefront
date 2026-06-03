@@ -48,9 +48,11 @@ import {
 
 // Project Components
 import Pagination from '@salesforce/retail-react-app/app/components/pagination'
-import ProductTile, {
-    Skeleton as ProductTileSkeleton
-} from '@salesforce/retail-react-app/app/components/product-tile'
+// NOTE: imported via a relative path on purpose. The overrides resolver does
+// NOT redirect `@salesforce/retail-react-app/...` imports that are issued from
+// the overrides directory (so overrides can reach the base). Using the alias
+// here would load the BASE product-tile, which has no add-to-cart support.
+import ProductTile, {Skeleton as ProductTileSkeleton} from '../../components/product-tile'
 import {HideOnDesktop} from '@salesforce/retail-react-app/app/components/responsive'
 import Refinements from '@salesforce/retail-react-app/app/pages/product-list/partials/refinements'
 import CategoryLinks from '@salesforce/retail-react-app/app/pages/product-list/partials/category-links'

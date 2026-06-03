@@ -10,6 +10,10 @@ const base = require('@salesforce/pwa-kit-dev/configs/jest/jest.config.js')
 
 module.exports = {
     ...base,
+    // Mirror the webpack overrides-plugin under jest so imports of the extended
+    // package resolve to files in `overrides/` when present, exactly like
+    // production. Without this, tests would load base files instead of overrides.
+    resolver: '<rootDir>/jest-resolver.js',
     // Reuse the retail-react-app test bootstrap: it registers @testing-library/jest-dom
     // matchers, starts the msw mock SCAPI server, and installs the jsdom storage/crypto
     // mocks that renderWithProviders relies on.

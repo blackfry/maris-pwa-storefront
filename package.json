@@ -32,7 +32,7 @@
     "test:max-file-size": "npm run build && bundlesize",
     "compile-translations": "node ./node_modules/@salesforce/retail-react-app/scripts/translations/compile-folder.js translations",
     "compile-translations:pseudo": "node ./node_modules/@salesforce/retail-react-app/scripts/translations/compile-pseudo.js translations/en-US.json",
-    "extract-default-translations": "node ./node_modules/@salesforce/retail-react-app/scripts/translations/extract-default-messages.js en-US en-GB"
+    "extract-default-translations": "node ./scripts/translations/extract-default-messages.js en-US en-GB"
   },
   "overrides": {
     "react-router": {

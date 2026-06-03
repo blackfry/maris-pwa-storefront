@@ -5,9 +5,10 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import React from 'react'
-// Import the override under test directly. The webpack extensibility resolver
-// is not active under jest, so importing via the `@salesforce/retail-react-app`
-// alias would load the base component instead of this override.
+// Co-located override test: import the subject relatively. The jest-resolver
+// intentionally resolves same-directory alias imports to base (to keep
+// re-export shims like constants.js from looping), so the alias here would load
+// the base tile, not this override.
 import ProductTile, {Skeleton} from './index'
 import {renderWithProviders} from '@salesforce/retail-react-app/app/utils/test-utils'
 import {fireEvent, waitFor, within, screen} from '@testing-library/react'

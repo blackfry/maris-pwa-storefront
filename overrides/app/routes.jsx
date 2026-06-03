@@ -20,6 +20,11 @@ const fallback = <Skeleton height="75vh" width="100%" />
 // Use loadable to split code into smaller js chunks
 const Home = loadable(() => import('./pages/home'), {fallback})
 const MyNewRoute = loadable(() => import('./pages/my-new-route'))
+// Imported relatively so the overrides resolver serves the override page. The
+// base routes reach product-list via a relative import the resolver does not
+// redirect, so the PLP override must be wired here to take effect. These
+// entries are listed before `..._routes` so they win in the route <Switch>.
+const ProductList = loadable(() => import('./pages/product-list'), {fallback})
 
 const routes = [
     {
@@ -30,6 +35,14 @@ const routes = [
     {
         path: '/my-new-route',
         component: MyNewRoute
+    },
+    {
+        path: '/search',
+        component: ProductList
+    },
+    {
+        path: '/category/:categoryId',
+        component: ProductList
     },
     ..._routes
 ]
