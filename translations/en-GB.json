@@ -1579,6 +1579,21 @@
   "product_tile.badge.label.sale": {
     "defaultMessage": "Sale"
   },
+  "product_tile.button.add_to_cart": {
+    "defaultMessage": "Add to Cart"
+  },
+  "product_tile.button.select_options": {
+    "defaultMessage": "Select Options"
+  },
+  "product_tile.button.sold_out": {
+    "defaultMessage": "Sold Out"
+  },
+  "product_tile.toast.action_view_cart": {
+    "defaultMessage": "View Cart"
+  },
+  "product_tile.toast.added_to_cart": {
+    "defaultMessage": "{quantity} {quantity, plural, one {item} other {items}} added to cart"
+  },
   "product_view.button.add_bundle_to_cart": {
     "defaultMessage": "Add Bundle to Cart"
   },

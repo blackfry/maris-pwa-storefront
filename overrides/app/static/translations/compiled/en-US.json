@@ -3805,6 +3805,68 @@
       "value": "Sale"
     }
   ],
+  "product_tile.button.add_to_cart": [
+    {
+      "type": 0,
+      "value": "Add to Cart"
+    }
+  ],
+  "product_tile.button.select_options": [
+    {
+      "type": 0,
+      "value": "Select Options"
+    }
+  ],
+  "product_tile.button.sold_out": [
+    {
+      "type": 0,
+      "value": "Sold Out"
+    }
+  ],
+  "product_tile.toast.action_view_cart": [
+    {
+      "type": 0,
+      "value": "View Cart"
+    }
+  ],
+  "product_tile.toast.added_to_cart": [
+    {
+      "type": 1,
+      "value": "quantity"
+    },
+    {
+      "type": 0,
+      "value": " "
+    },
+    {
+      "offset": 0,
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 0,
+              "value": "item"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 0,
+              "value": "items"
+            }
+          ]
+        }
+      },
+      "pluralType": "cardinal",
+      "type": 6,
+      "value": "quantity"
+    },
+    {
+      "type": 0,
+      "value": " added to cart"
+    }
+  ],
   "product_view.button.add_bundle_to_cart": [
     {
       "type": 0,
