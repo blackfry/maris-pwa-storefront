@@ -129,10 +129,18 @@ const tokenBodyParser = express.urlencoded({extended: false})
 // scoped for. Shopper Context and Shopper Configurations both 403 on this
 // backend, and each is queried from several base components (the app shell,
 // page-designer banner, marketing-consent footer form, sf-payments check) — so
-// rather than override every caller, we answer the two GETs at the proxy with a
-// valid empty payload. The hooks then behave as "no context / no config", which
-// is the correct result here, and the console stays clean. Remove this once the
-// SLAS client carries the shopper-context / shopper-experience scopes.
+// rather than override every caller, we answer the two GETs at the proxy.
+//
+// Shopper Context returns `null` (not `{}`) on purpose: consumers gate dependent
+// requests on its truthiness — e.g. the PLP Page Designer banner only fetches
+// its promo pages when `!!shopperContext`. A truthy `{}` would switch those on
+// and surface a fresh 403 on the (also-unavailable) shopper-experience pages
+// API; `null` keeps shopper context "absent" — matching reality — so those
+// queries stay disabled, as they were when the call 403'd, but without the
+// console error. Shopper Configurations returns an empty list, so the
+// feature-flag lookups it backs (sf-payments, marketing consent) resolve to off.
+// Remove this once the SLAS client carries the shopper-context /
+// shopper-experience scopes.
 const isShimmedScapiGet = (method, reqPath) =>
     method === 'GET' &&
     (/\/shopper-context\/v1\/.+\/shopper-context\//.test(reqPath) ||
@@ -142,7 +150,7 @@ const shimEmptyScapi = (req, res, next) => {
     res.set('cache-control', 'no-store')
     return req.path.includes('/shopper-configurations/')
         ? res.status(200).json({limit: 0, data: [], total: 0})
-        : res.status(200).json({})
+        : res.status(200).json(null)
 }
 
 const {ssrParameters} = require(path.join(__dirname, 'config', 'default.js'))
