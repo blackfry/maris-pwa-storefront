@@ -257,8 +257,14 @@ const ProductTile = (props) => {
     }
 
     return (
-        <Box {...styles.container}>
-            <Link data-testid="product-tile" to={productUrl} {...styles.link} {...rest}>
+        <Box {...styles.container} display="flex" flexDirection="column" height="100%">
+            <Link
+                data-testid="product-tile"
+                to={productUrl}
+                {...styles.link}
+                flexGrow={1}
+                {...rest}
+            >
                 <Box {...styles.imageWrapper}>
                     <AspectRatio {...styles.image}>
                         <DynamicImage
@@ -326,8 +332,11 @@ const ProductTile = (props) => {
                         </SwatchGroup>
                     ))}
 
-                {/* Title */}
-                <Text {...styles.title}>{localizedProductName}</Text>
+                {/* Title — reserve two lines so the price row lines up across
+                    tiles whose names wrap to one vs two lines. */}
+                <Text {...styles.title} noOfLines={2} minHeight="3em">
+                    {localizedProductName}
+                </Text>
 
                 {isRefreshingData ? (
                     <PricingAndPromotionsSkeleton />
