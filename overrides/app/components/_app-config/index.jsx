@@ -6,6 +6,7 @@
  */
 import React from 'react'
 import PropTypes from 'prop-types'
+import loadable from '@loadable/component'
 import {Helmet} from 'react-helmet'
 import {ChakraProvider} from '@salesforce/retail-react-app/app/components/shared/ui'
 
@@ -37,7 +38,6 @@ import {CommerceApiProvider} from '@salesforce/commerce-sdk-react'
 import {withReactQuery} from '@salesforce/pwa-kit-react-sdk/ssr/universal/components/with-react-query'
 import {useCorrelationId} from '@salesforce/pwa-kit-react-sdk/ssr/universal/hooks'
 import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
-import {ReactQueryDevtools} from '@tanstack/react-query-devtools'
 import {generateSfdcUserAgent} from '@salesforce/retail-react-app/app/utils/sfdc-user-agent-utils'
 import {
     DEFAULT_DNT_STATE,
@@ -51,6 +51,23 @@ import {
 } from '@salesforce/retail-react-app/app/constants'
 
 const sfdcUserAgent = generateSfdcUserAgent()
+
+// React Query devtools are a development-only aid. The stock _app-config
+// imports them statically and renders them unconditionally; webpack strips the
+// package to a no-op shim in production, but it still bloats the *development*
+// bundle (which is what Lighthouse measures locally). Loading them lazily and
+// only outside production keeps them out of the eager bundle entirely: in
+// production this resolves to a render-nothing component (so the dynamic import
+// is dead-code-eliminated), and in development they load as a separate async
+// chunk rather than riding along in main/vendor.
+const ReactQueryDevtools =
+    process.env.NODE_ENV !== 'production'
+        ? loadable(() =>
+              import('@tanstack/react-query-devtools').then((module) => ({
+                  default: module.ReactQueryDevtools
+              }))
+          )
+        : () => null
 
 /**
  * Use the AppConfig component to inject extra arguments into the getProps

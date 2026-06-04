@@ -50,8 +50,8 @@
       "maxSize": "44 kB"
     },
     {
-      "path": "build/vendor.js",
-      "maxSize": "320 kB"
+      "path": "build/vendor*.js",
+      "maxSize": "150 kB"
     }
   ],
   "browserslist": [
