@@ -179,9 +179,18 @@ for (const {host, path: proxyName} of ssrParameters.proxyConfigs || []) {
                 if (proxyReq.path.includes(encPublic)) {
                     proxyReq.path = proxyReq.path.split(encPublic).join(encRegistered)
                 }
-                // token: redirect_uri lives in the parsed urlencoded body
-                if (req.body && req.body.redirect_uri === PUBLIC_CALLBACK) {
-                    req.body.redirect_uri = REGISTERED_CALLBACK
+                // token: tokenBodyParser already consumed the request stream to
+                // build req.body, so http-proxy-middleware has nothing left to
+                // pipe upstream. We MUST re-stream the parsed body with
+                // fixRequestBody for EVERY parsed token POST or the proxied
+                // request hangs until the gateway times out (504) — this bit the
+                // SDK's refresh_token grant, which (unlike the authorization_code
+                // login) carries no redirect_uri. Rewrite redirect_uri first when
+                // present, then restream unconditionally.
+                if (req.body && Object.keys(req.body).length > 0) {
+                    if (req.body.redirect_uri === PUBLIC_CALLBACK) {
+                        req.body.redirect_uri = REGISTERED_CALLBACK
+                    }
                     fixRequestBody(proxyReq, req)
                 }
             },
