@@ -186,8 +186,14 @@ for (const {host, path: proxyName} of ssrParameters.proxyConfigs || []) {
                 // request hangs until the gateway times out (504) — this bit the
                 // SDK's refresh_token grant, which (unlike the authorization_code
                 // login) carries no redirect_uri. Rewrite redirect_uri first when
-                // present, then restream unconditionally.
-                if (req.body && Object.keys(req.body).length > 0) {
+                // present, then restream unconditionally. `req.body` is only
+                // ever set on a token POST (tokenBodyParser is the sole parser
+                // and is scoped to /oauth2/token), so this never touches the
+                // pass-through SCAPI/OCAPI requests. We do NOT gate on the body
+                // having keys: an empty-but-parsed body still drained the stream,
+                // so it too must be restreamed or the upstream hangs to a 504 —
+                // fixRequestBody self-skips when the stream wasn't consumed.
+                if (req.body) {
                     if (req.body.redirect_uri === PUBLIC_CALLBACK) {
                         req.body.redirect_uri = REGISTERED_CALLBACK
                     }
