@@ -13,6 +13,11 @@
     import the underlying constants.js, modifies it and re-export it.
 */
 
-export const CUSTOM_HOME_TITLE = '🎉 Hello Extensible React Template!'
+export const CUSTOM_HOME_TITLE = 'New season, new standards'
+
+// Home page merchandising config
+export const HOME_HERO_CATEGORY_ID = 'newarrivals'
+export const HOME_CATEGORY_SHOWCASE_LIMIT = 6
+export const HOME_FEATURED_LIMIT = 12
 
 export * from '@salesforce/retail-react-app/app/constants'
