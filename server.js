@@ -21,6 +21,7 @@
 const path = require('path')
 const {randomUUID} = require('crypto')
 const express = require('express')
+const {createProxyMiddleware} = require('http-proxy-middleware')
 
 // React must render in production mode. The build itself is always compiled
 // with NODE_ENV=production by pwa-kit-dev; this covers the runtime render.
@@ -98,8 +99,35 @@ root.use(
     express.static(buildDir, {immutable: true, maxAge: '365d', fallthrough: true})
 )
 
-// (3) The PWA Kit app handles everything else: SSR rendering, the SCAPI proxy
-// (/mobify/proxy/api), the SLAS callbacks, and the /mobify/ping healthcheck.
+// (2.5) Proxy /mobify/proxy/<name>/* to the configured commerce backends. In
+// remote mode PWA Kit's _setupProxying is a hardcoded 501 stub, because on
+// Managed Runtime the eCDN proxies these paths upstream of the Lambda. Self-
+// hosting has no eCDN, so without this every SCAPI call — including the guest
+// SLAS token exchange that gates all shopper data — returns 501 and pages render
+// without products. We read the same proxyConfigs the app uses and stand up a
+// real proxy per entry, mounted before the app so it wins over the 501 stub.
+//
+const {ssrParameters} = require(path.join(__dirname, 'config', 'default.js'))
+for (const {host, path: proxyName} of ssrParameters.proxyConfigs || []) {
+    const mountPath = `/mobify/proxy/${proxyName}`
+    root.use(
+        mountPath,
+        createProxyMiddleware({
+            target: `https://${host}`,
+            changeOrigin: true,
+            secure: true,
+            xfwd: false,
+            // Strip the /mobify/proxy/<name> prefix so SCAPI/OCAPI sees the bare
+            // resource path. The regex is a no-op if the mount already stripped
+            // it, so this is correct whether the proxy reads the original or the
+            // mount-relative URL.
+            pathRewrite: {[`^${mountPath}`]: ''}
+        })
+    )
+}
+
+// (3) The PWA Kit app handles everything else: SSR rendering, the SLAS callbacks,
+// and the /mobify/ping healthcheck.
 root.use(app)
 
 root.listen(port, () => {
