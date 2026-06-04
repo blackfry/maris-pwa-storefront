@@ -125,9 +125,30 @@ const encRegistered = encodeURIComponent(REGISTERED_CALLBACK)
 // the token endpoint so no other proxied request has its stream touched.
 const tokenBodyParser = express.urlencoded({extended: false})
 
+// Empty-response shim for SCAPI features the shared demo guest token isn't
+// scoped for. Shopper Context and Shopper Configurations both 403 on this
+// backend, and each is queried from several base components (the app shell,
+// page-designer banner, marketing-consent footer form, sf-payments check) — so
+// rather than override every caller, we answer the two GETs at the proxy with a
+// valid empty payload. The hooks then behave as "no context / no config", which
+// is the correct result here, and the console stays clean. Remove this once the
+// SLAS client carries the shopper-context / shopper-experience scopes.
+const isShimmedScapiGet = (method, reqPath) =>
+    method === 'GET' &&
+    (/\/shopper-context\/v1\/.+\/shopper-context\//.test(reqPath) ||
+        /\/shopper-configurations\/v1\/.+\/configurations$/.test(reqPath))
+const shimEmptyScapi = (req, res, next) => {
+    if (!isShimmedScapiGet(req.method, req.path)) return next()
+    res.set('cache-control', 'no-store')
+    return req.path.includes('/shopper-configurations/')
+        ? res.status(200).json({limit: 0, data: [], total: 0})
+        : res.status(200).json({})
+}
+
 const {ssrParameters} = require(path.join(__dirname, 'config', 'default.js'))
 for (const {host, path: proxyName} of ssrParameters.proxyConfigs || []) {
     const mountPath = `/mobify/proxy/${proxyName}`
+    root.use(mountPath, shimEmptyScapi)
     root.use(mountPath, (req, res, next) =>
         req.method === 'POST' && req.path.includes('/oauth2/token')
             ? tokenBodyParser(req, res, next)
