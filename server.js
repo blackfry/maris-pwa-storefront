@@ -21,7 +21,7 @@
 const path = require('path')
 const {randomUUID} = require('crypto')
 const express = require('express')
-const {createProxyMiddleware} = require('http-proxy-middleware')
+const {createProxyMiddleware, fixRequestBody} = require('http-proxy-middleware')
 
 // React must render in production mode. The build itself is always compiled
 // with NODE_ENV=production by pwa-kit-dev; this covers the runtime render.
@@ -107,9 +107,32 @@ root.use(
 // without products. We read the same proxyConfigs the app uses and stand up a
 // real proxy per entry, mounted before the app so it wins over the 501 stub.
 //
+//
+// SLAS redirect_uri rewrite: the shared demo SLAS client only accepts
+// redirect_uris on its registered allow-list, which does not include this host
+// and can't be changed without Account Manager access. Both the guest authorize
+// AND the token exchange reject our public callback with 400. So we translate at
+// the proxy: swap our public callback for a registered one on every request
+// heading to SLAS (authorize query string + token request body), and swap it
+// back in the 303 Location so the browser only ever follows the redirect to our
+// own origin. PKCE (code_verifier/challenge) is independent of redirect_uri, so
+// the exchange still succeeds and the guest token is normal.
+const PUBLIC_CALLBACK = `https://${process.env.EXTERNAL_DOMAIN_NAME}/callback`
+const REGISTERED_CALLBACK = process.env.SLAS_REGISTERED_CALLBACK || 'http://localhost:3000/callback'
+const encPublic = encodeURIComponent(PUBLIC_CALLBACK)
+const encRegistered = encodeURIComponent(REGISTERED_CALLBACK)
+// Parse the SLAS token POST body so its redirect_uri can be rewritten. Scoped to
+// the token endpoint so no other proxied request has its stream touched.
+const tokenBodyParser = express.urlencoded({extended: false})
+
 const {ssrParameters} = require(path.join(__dirname, 'config', 'default.js'))
 for (const {host, path: proxyName} of ssrParameters.proxyConfigs || []) {
     const mountPath = `/mobify/proxy/${proxyName}`
+    root.use(mountPath, (req, res, next) =>
+        req.method === 'POST' && req.path.includes('/oauth2/token')
+            ? tokenBodyParser(req, res, next)
+            : next()
+    )
     root.use(
         mountPath,
         createProxyMiddleware({
@@ -121,7 +144,28 @@ for (const {host, path: proxyName} of ssrParameters.proxyConfigs || []) {
             // resource path. The regex is a no-op if the mount already stripped
             // it, so this is correct whether the proxy reads the original or the
             // mount-relative URL.
-            pathRewrite: {[`^${mountPath}`]: ''}
+            pathRewrite: {[`^${mountPath}`]: ''},
+            onProxyReq: (proxyReq, req) => {
+                // authorize: redirect_uri lives in the (encoded) query string
+                if (proxyReq.path.includes(encPublic)) {
+                    proxyReq.path = proxyReq.path.split(encPublic).join(encRegistered)
+                }
+                // token: redirect_uri lives in the parsed urlencoded body
+                if (req.body && req.body.redirect_uri === PUBLIC_CALLBACK) {
+                    req.body.redirect_uri = REGISTERED_CALLBACK
+                    fixRequestBody(proxyReq, req)
+                }
+            },
+            onProxyRes: (proxyRes) => {
+                // swap the registered callback back to ours in the 303 Location
+                // so the browser follows the redirect to our own /callback
+                const location = proxyRes.headers.location
+                if (location && location.includes(REGISTERED_CALLBACK)) {
+                    proxyRes.headers.location = location
+                        .split(REGISTERED_CALLBACK)
+                        .join(PUBLIC_CALLBACK)
+                }
+            }
         })
     )
 }
