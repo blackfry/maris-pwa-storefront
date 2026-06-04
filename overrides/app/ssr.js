@@ -333,7 +333,7 @@ export async function jwksCaching(req, res, options) {
     }
 }
 
-const {handler} = runtime.createHandler(options, (app) => {
+const {handler, app: expressApp} = runtime.createHandler(options, (app) => {
     app.use(express.json()) // To parse JSON payloads
     app.use(express.urlencoded({extended: true}))
     // Set default HTTP security headers required by PWA Kit
@@ -505,3 +505,9 @@ const {handler} = runtime.createHandler(options, (app) => {
 // SSR requires that we export a single handler function called 'get', that
 // supports AWS use of the server that we created above.
 export const get = handler
+
+// Also export the underlying Express app so a standalone Node process (see
+// server.js at the project root) can bind it to a port and self-host the
+// production build outside Salesforce Managed Runtime (e.g. on Railway).
+// Managed Runtime ignores this export and invokes `get`.
+export {expressApp as app}

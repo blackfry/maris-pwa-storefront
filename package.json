@@ -19,6 +19,7 @@
     "test": "pwa-kit-dev test",
     "build": "npm run build-translations && pwa-kit-dev build",
     "start": "cross-env NODE_ICU_DATA=node_modules/full-icu pwa-kit-dev start",
+    "serve": "node server.js",
     "format": "pwa-kit-dev format \"**/*.{js,jsx}\"",
     "lint:fix": "npm run lint -- --fix",
     "tail-logs": "pwa-kit-dev tail-logs",

@@ -11,7 +11,7 @@ module.exports = {
         {
             // Root-level CommonJS build/config files that the toolchain loads
             // with require() (not bundled app code) — `require()` is correct here.
-            files: ['webpack.config.js'],
+            files: ['webpack.config.js', 'server.js'],
             env: {node: true},
             rules: {
                 '@typescript-eslint/no-var-requires': 'off'
